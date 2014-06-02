@@ -1,3 +1,4 @@
-function [predictions] = lrpredict(theta, X)
-  predictions = sigmoid(X * theta) >= 0.1;
+function [p] = lrpredict(thetas, X)
+predictions = sigmoid(X * all_theta');
+[k, p] = max(predictions, [], 2);
 end
