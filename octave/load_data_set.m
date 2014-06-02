@@ -1,21 +1,15 @@
 function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
   disp 'Loading dataset...';
-  load -ascii '../data/Xy.mat';
+  load -ascii '../data/train.m';
   disp 'Done!';
   fflush(stdout);
 
-  Xy = Xy(1:end, :);
+  Xy = train(:, 2:end);
 
-  m = size(Xy, 1);
+  [m, n] = size(Xy);
 
-  X = zeros(m, 2);
-  y = zeros(m, 1);
-  
-  for i = 1:m 
-    X(i, 1) = Xy(i, 1);
-    X(i, 2) = Xy(i, 3)*100/Xy(i, 2);
-    y(i) = Xy(i, end);
-  end 
+  X = Xy(:, 1:n-1);
+  y = Xy(:, n);
 
   X = double(X);
   y = double(y);
@@ -35,15 +29,15 @@ function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
 
   X_train = X(train_range_start:train_range_end, :);
   y_train = double(y(train_range_start:train_range_end, :));
-  %[X_train, mu, sigma] = feature_normalize(X_train);
+  [X_train, mu, sigma] = feature_normalize(X_train);
 
   X_val = X(val_range_start:val_range_end, :);
   y_val = double(y(val_range_start:val_range_end, :));
-  %X_val = feature_normalize(X_val, mu, sigma);
+  X_val = feature_normalize(X_val, mu, sigma);
 
   X_test = X(test_range_start:test_range_end, :);
   y_test = double(y(test_range_start:test_range_end, :));
-  %X_test = feature_normalize(X_test, mu, sigma);
+  X_test = feature_normalize(X_test, mu, sigma);
 
   X_train = double(add_bias(X_train));
   X_val = double(add_bias(X_val));

@@ -1,10 +1,13 @@
-function [theta] = lrtrain(X_train, y_train, lambda)
-m = size(X_train, 1);
-n = size(X_train, 2);
+function [all_theta] = lrtrain(X, y, num_labels, lambda, max_iter)
+[m, n] = size(X);
 
-theta = zeros(n, 1);
-options = optimset('GradObj', 'on', 'MaxIter', 50);
-[theta] = fminunc (@(t)(lrcostfunction(t, X_train, y_train, lambda)), theta, options);
+all_theta = zeros(num_labels, n);
 
+initial_theta = zeros(n, 1);
+options = optimset('GradObj', 'on', 'MaxIter', max_iter);
+
+for l = 1:num_labels
+  all_theta(l, :) = fmincg (@(t)(lrcostfunction(t, X, (y == l), lambda)), initial_theta, options);
 end
 
+end
