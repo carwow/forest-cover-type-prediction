@@ -14,4 +14,6 @@ end
 
 X_norm = bsxfun(@rdivide, X_norm, sigma);
 
+X_norm(find(isnan(X_norm))) = 0;
+
 end
