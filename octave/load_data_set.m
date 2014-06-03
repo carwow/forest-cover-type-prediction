@@ -12,6 +12,10 @@ function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
   y = Xy(:, n);
 
   X = double(X);
+  
+  % Adding exponential features
+  %X = polyfeatures(X, 12);
+
   y = double(y);
 
   train_range_start = 1;
