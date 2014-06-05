@@ -1,11 +1,8 @@
-function [Theta1, Theta2] = nntrain(input_layer_size, hidden_layer_size, num_labels, X, y, lambda, initial_nn_params)
+function [Theta1, Theta2, cost] = nntrain(input_layer_size, hidden_layer_size, num_labels, X, y, lambda, initial_nn_params, max_iter)
 
 %  After you have completed the assignment, change the MaxIter to a larger
 %  value to see how more training helps.
-options = optimset('MaxIter', 50);
-
-%  You should also try different values of lambda
-lambda = 1;
+options = optimset('MaxIter', max_iter);
 
 % Create "short hand" for the cost function to be minimized
 costFunction = @(p) nncostfunction(p, ...

@@ -7,4 +7,4 @@ addpath ("./neural_network/");
 % Plot learning curve
 %lrplotlearningcurve(X_train, y_train, X_val, y_val, 10);
 
-[Theta1, Theta2] = nninit(X_train, y_train)
+%[Theta1, Theta2] = nninit(X_train, y_train);
