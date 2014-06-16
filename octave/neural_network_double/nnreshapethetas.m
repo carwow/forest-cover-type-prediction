@@ -1,17 +1,16 @@
-function [Theta1, Theta2, Theta3] = nnreshapethetas(nn_params, input_layer_size, hidden_layer_size, num_labels)
+function [thetas] = nnreshapethetas(nn_params, dimensions)
 
-start_Theta1 = 1;
-end_Theta1 = hidden_layer_size * (input_layer_size + 1);
-Theta1 = reshape(nn_params(start_Theta1:end_Theta1), hidden_layer_size, (input_layer_size + 1));
+num_of_thetas = numel(dimensions) - 1;
 
-start_Theta2 = end_Theta1 + 1;
-end_Theta2 = start_Theta2 + (hidden_layer_size * (hidden_layer_size + 1)) - 1;
-Theta2 = reshape(nn_params(start_Theta2:end_Theta2), ...
-                 hidden_layer_size, (hidden_layer_size + 1));
+thetas = cell(num_of_thetas, 1);
 
-start_Theta3 = end_Theta2 + 1;
-end_Theta3 = start_Theta3 + (num_labels * (hidden_layer_size + 1)) - 1;
-Theta3 = reshape(nn_params(start_Theta3:end_Theta3), ...
-                 num_labels, (hidden_layer_size + 1));
+last_theta_end = 0;
+
+for i = 1:num_of_thetas
+  start_theta = last_theta_end + 1;
+  end_theta = (dimensions(i) + 1) * dimensions(i+1) + start_theta - 1; 
+  last_theta_end = end_theta;
+  thetas{i} = reshape(nn_params(start_theta:end_theta), dimensions(i+1), dimensions(i) + 1); 
+end
 
 end

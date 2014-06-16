@@ -6,7 +6,7 @@ step_size = floor(m / learning_steps);
 input_layer_size = n;
 hidden_layer_size = n;
 
-initial_nn_params = calculate_initial_nn_params(input_layer_size, hidden_layer_size, num_labels);
+initial_nn_params = calculate_initial_nn_params([input_layer_size, hidden_layer_size, hidden_layer_size, num_labels]);
 
 error_train = zeros(learning_steps, 1);
 error_val   = zeros(learning_steps, 1);
@@ -17,12 +17,13 @@ for i=1:learning_steps
   y_train = y(1:num_training_examples, :);
   disp(sprintf('Learning with %i training examples', num_training_examples));
   fflush(stdout);
-  [Theta1, Theta2, Theta3] = nntrain(input_layer_size, hidden_layer_size, num_labels, X_train, y_train, lambda, initial_nn_params, 1000);
+  dimensions = [input_layer_size, hidden_layer_size, hidden_layer_size, num_labels]
+  [thetas] = nntrain(dimensions, X_train, y_train, lambda, initial_nn_params, 1000);
   disp(sprintf('Done learning with %i training examples', num_training_examples));
   fflush(stdout);
 
-  error_train(i) = nncalculateerror(Theta1, Theta2, Theta3, X_train, y_train);
-  error_val(i) = nncalculateerror(Theta1, Theta2, Theta3, X_val, y_val);
+  error_train(i) = nncalculateerror(thetas, y_train);
+  error_val(i) = nncalculateerror(thetas, y_val);
 end
 
 end

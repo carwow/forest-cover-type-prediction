@@ -1,11 +1,15 @@
-function [initial_nn_params, initial_Theta1, initial_Theta2, initial_Theta3] = calculate_initial_nn_params(input_layer_size, hidden_layer_size, num_labels)
+function [initial_nn_params] = calculate_initial_nn_params(dimensions)
 
-initial_Theta1 = nnrandinitializeweights(input_layer_size, hidden_layer_size);
+num_of_layers = numel(dimensions);
+num_of_thetas = num_of_layers - 1;
 
-initial_Theta2 = nnrandinitializeweights(hidden_layer_size, hidden_layer_size);
 
-initial_Theta3 = nnrandinitializeweights(hidden_layer_size, num_labels);
+thetas = zeros(num_of_thetas, 1);
+initial_nn_params = [];
 
-% Unroll parameters
-initial_nn_params = [initial_Theta1(:) ; initial_Theta2(:) ; initial_Theta3(:)];
+for i = 1:num_of_thetas
+  theta = nnrandinitializeweights(dimensions(i), dimensions(i+1)); 
+  initial_nn_params = [initial_nn_params ; theta(:)];
+end
+
 end

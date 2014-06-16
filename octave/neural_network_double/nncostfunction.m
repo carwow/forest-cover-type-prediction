@@ -1,60 +1,67 @@
 function [J grad] = nncostfunction(nn_params, ...
-                                   input_layer_size, ...
-                                   hidden_layer_size, ...
-                                   num_labels, ...
+                                   dimensions,
                                    X, y, lambda)
 
 
-[Theta1, Theta2, Theta3] = nnreshapethetas(nn_params, input_layer_size, hidden_layer_size, num_labels);
+thetas = nnreshapethetas(nn_params, dimensions);
 
 % Setup some useful variables
 m = size(X, 1);
+num_of_layers = numel(dimensions);
+num_of_thetas = num_of_layers - 1;
 
-% 1. Feed-forward to compute h = a4.
-a1 = [ones(1, m); X'];
-z2 = Theta1 * a1;
-a2 = [ones(1, m); sigmoid(z2)];
-z3 = Theta2 * a2;
-a3 = [ones(1, m); sigmoid(z3)];
-z4 = Theta3 * a3;
-a4 = sigmoid(z4);
+num_labels = dimensions(num_of_layers);
+input_layer_size = dimensions(1);
 
-% Explode y into 10 values with Y[i] := i == y.
+a = cell(num_of_layers, 1);
+z = cell(num_of_layers, 1);
+
+% Feed forward
+a{1} = [ones(1, m); X'];
+
+for t = 1:(num_of_thetas-1)
+  z{t+1} = thetas{t} * a{t};
+  a{t+1} = [ones(1, m); sigmoid(z{t+1})];
+end
+
+z{num_of_layers} = thetas{num_of_thetas} * a{num_of_layers-1};
+a{num_of_layers} = sigmoid(z{num_of_layers});
+
+% Explode y into num_labels values with Y[i] := i == y.
 Y = zeros(num_labels, m);
 Y(sub2ind(size(Y), y', 1:m)) = 1;
 
 % Compute the non-regularized error. Fully vectorized, at the expense of
 % having an expanded Y in memory (which is 1/40th the size of X, so it should be
 % fine).
-J = (1/m) * sum(sum(-Y .* log(a4) - (1 - Y) .* log(1 - a4)));
+J = (1/m) * sum(sum(-Y .* log(a{num_of_layers}) - (1 - Y) .* log(1 - a{num_of_layers})));
 
 % Add regularized error. Drop the bias terms in the 1st columns.
-J = J + (lambda / (2*m)) * sum(sum(Theta1(:, 2:end) .^ 2));
-J = J + (lambda / (2*m)) * sum(sum(Theta2(:, 2:end) .^ 2));
-J = J + (lambda / (2*m)) * sum(sum(Theta3(:, 2:end) .^ 2));
+for t=1:num_of_thetas
+  J = J + (lambda / (2*m)) * sum(sum(thetas{t}(:, 2:end) .^ 2));
+end
 
 
 % 2. Backpropagate to get gradient information.
-d4 = a4 - Y;
-d3 = (Theta3' * d4) .* [ones(1, m); sigmoidGradient(z3)];  % 26 x m
-d3 = d3(2:end, :);
-d2 = (Theta2' * d3) .* [ones(1, m); sigmoidGradient(z2)];  % 26 x m
-d2 = d2(2:end, :);
+d = cell(num_of_layers, 1);
 
+d{num_of_layers} = a{num_of_layers} - Y;
+
+i = num_of_layers - 1;
+while i > 1
+  d{i} = (thetas{i}' * d{i+1}) .* [ones(1, m); sigmoidGradient(z{i})];  % 26 x m
+  d{i} = d{i}(2:end, :);
+  i = i - 1;
+end
+
+thetas_grad = cell(num_of_thetas, 1);
+
+grad = [];
 % Vectorized ftw:
-Theta3_grad = (1/m) * d4 * a3';
-Theta2_grad = (1/m) * d3 * a2';
-Theta1_grad = (1/m) * d2 * a1';
-
-% Add gradient regularization.
-Theta3_grad = Theta3_grad + ...
-              (lambda / m) * ([zeros(size(Theta3, 1), 1), Theta3(:, 2:end)]);
-Theta2_grad = Theta2_grad + ...
-              (lambda / m) * ([zeros(size(Theta2, 1), 1), Theta2(:, 2:end)]);
-Theta1_grad = Theta1_grad + ...
-              (lambda / m) * ([zeros(size(Theta1, 1), 1), Theta1(:, 2:end)]);
-
-% Unroll gradients.
-grad = [Theta1_grad(:) ; Theta2_grad(:) ; Theta3_grad(:)];
+for t = 1:num_of_thetas
+  reg = (lambda / m) * ([zeros(size(thetas{t}, 1), 1), thetas{t}(:, 2:end)]);
+  theta_grad = (1/m) * d{t+1} * a{t}' + reg;
+  grad = [grad; theta_grad(:)];
+end
 
 end

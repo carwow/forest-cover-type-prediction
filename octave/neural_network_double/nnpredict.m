@@ -1,15 +1,21 @@
-function p = nnpredict(Theta1, Theta2, Theta3, X)
+function p = nnpredict(thetas, X)
 % Useful values
 m = size(X, 1);
-num_labels = size(Theta3, 1);
+num_of_thetas = size(thetas, 1);
+num_labels = size(thetas{num_of_thetas}, 1);
 
 % You need to return the following variables correctly 
 p = zeros(size(X, 1), 1);
 
-h1 = sigmoid([ones(m, 1) X] * Theta1');
-h2 = sigmoid([ones(m, 1) h1] * Theta2');
-h3 = sigmoid([ones(m, 1) h2] * Theta3');
-[dummy, p] = max(h3, [], 2);
+h = cell(num_of_thetas, 1);
+
+h{1} = sigmoid([ones(m, 1) X] * thetas{1}');
+
+for t = 2:num_of_thetas
+  h{t} = sigmoid([ones(m, 1) h{t-1}] * thetas{t}');
+end
+
+[dummy, p] = max(h{num_of_thetas}, [], 2);
 
 % =========================================================================
 
