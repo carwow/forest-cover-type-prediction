@@ -1,17 +1,12 @@
-function [errors] = nnlearnlambda(X_train, y_train, X_val, y_val)
+function [errors] = nnlearnlambda(dimensions, X_train, y_train, X_val, y_val)
 
-[m, n] = size(X_train);
-input_layer_size  = n;
-hidden_layer_size = round(n*1.25);   % 25 hidden units
-num_labels = 7;          % 10 labels, from 1 to 10   
 max_iter = 1000;
-initial_nn_params = calculate_initial_nn_params([input_layer_size, hidden_layer_size,  hidden_layer_size, num_labels]);
+initial_nn_params = calculate_initial_nn_params(dimensions);
 
-lambdas = [2, 3, 4, 5];
+lambdas = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30];
 
 for i=1:numel(lambdas)
   lambda = lambdas(i);
-  dimensions = [input_layer_size, hidden_layer_size, hidden_layer_size, num_labels];
   [thetas, cost] = nntrain(dimensions, X_train, y_train, lambda, initial_nn_params, max_iter);
   errors(i) = nncalculateerror(thetas, X_val, y_val);
 end

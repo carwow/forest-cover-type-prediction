@@ -1,10 +1,15 @@
-function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
+function [X_train, y_train, X_val, y_val, X_test, y_test, X, y, X_submission] = load_data_set()
   disp 'Loading dataset...';
   load -ascii '../data/train.m';
+  %load -ascii '../data/test.m';
   disp 'Done!';
   fflush(stdout);
 
   Xy = train(:, 2:end);
+
+  X_submission = [];
+
+  %X_submission = test(:, 2:end);
 
   [m, n] = size(Xy);
 
@@ -13,9 +18,6 @@ function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
 
   X = double(X);
   
-  % Adding exponential features
-  %X = polyfeatures(X, 12);
-
   y = double(y);
 
   train_range_start = 1;
@@ -30,6 +32,10 @@ function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
   fprintf('Test range: %i, %i\n', test_range_start, test_range_end);
   fflush(stdout);
 
+  
+
+  [X, mu, sigma] = feature_normalize(X);
+  %X_submission = feature_normalize(X_submission, mu, sigma);
 
   X_train = X(train_range_start:train_range_end, :);
   y_train = double(y(train_range_start:train_range_end, :));
@@ -46,4 +52,6 @@ function [X_train, y_train, X_val, y_val, X_test, y_test] = load_data_set()
   X_train = double(add_bias(X_train));
   X_val = double(add_bias(X_val));
   X_test = double(add_bias(X_test));
+  %X_submission = double(add_bias(X_submission));
+  X = double(add_bias(X));
 end
